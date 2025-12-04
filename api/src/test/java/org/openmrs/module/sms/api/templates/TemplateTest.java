@@ -60,6 +60,11 @@ public class TemplateTest {
   private static final String NEXMO_WHATSAPP_FAILOVER_MESSAGE_REQUEST =
       "requests/nexmo-WhatsApp-failover.json";
 
+  private static final String AISENSY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE =
+            "templates/aisensy-template.json";
+  private static final String AISENSY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST =
+            "requests/aisensy-template-request.json";
+
   private static final String FDI_MESSAGE_TEMPLATE = "templates/fdi-template.json";
   private static final String FDI_MESSAGE_REQUEST = "requests/fdi-template-request.json";
 
@@ -229,7 +234,7 @@ public class TemplateTest {
     // then
     final Map expectedRequestJsonMap = objectMapper.readValue(expectedRequestBody, Map.class);
     final Map generatedRequestJsonMap = objectMapper.readValue(generatedRequestJson, Map.class);
-    assertEquals(expectedRequestJsonMap, generatedRequestJsonMap);
+    assertEquals(expectedRequestJsonMap.toString(), generatedRequestJsonMap.toString());
   }
 
   private String extractRequestBodyJson(HttpMethod httpMethod) throws IOException {
@@ -272,6 +277,23 @@ public class TemplateTest {
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.readValue(jsonTemplate, Template.class);
   }
+
+    @Test
+    public void shouldGeneratePostMethodForAiSensyTemplate() throws IOException {
+        Map<String,Object> properties = new HashMap<>();
+        properties.put("apiKey", "XYZ123");
+        properties.put("campaignName", "WelcomeCampaign");
+        properties.put("destination", "256700111222");
+        properties.put("userName", "Jonathan");
+        properties.put("source", "whatsapp");
+        properties.put("message", "Hello Jonathan, welcome to our service!");
+
+        testRequestBodyGeneration(
+                AISENSY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE,
+                AISENSY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST,
+                properties
+        );
+    }
 
   private Template loadTemplate(String templateFile) throws IOException {
     try (InputStream templateStream =

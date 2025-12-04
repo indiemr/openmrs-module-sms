@@ -333,5 +333,52 @@
         },
         "incoming":{
         }
+    },
+  {
+    "name": "AiSensy",
+    "configurables": [
+      "apiKey",
+      "campaignName",
+      "source"
+    ],
+    "outgoing": {
+      "maxSmsSize": "160",
+      "maxRecipient": "1",
+      "millisecondsBetweenMessages": "1",
+      "exponentialBackOffRetries": "true",
+      "hasAuthentication": "false",
+      "request": {
+        "type": "POST",
+        "jsonContentType": "true",
+        "urlPath": "https://backend.aisensy.com/campaign/t1/api/v2",
+        "bodyParameters": {
+          "apiKey": "[apiKey]",
+          "campaignName": "[campaignName]",
+          "destination": "[recipients]",
+          "userName": "[userName]",
+          "source": "[source]",
+          "templateParams": [
+            "[message]"
+          ],
+          "tags": "[tags]",
+          "location": "[location]",
+          "attributes": "[attributes]",
+          "message": "[message]"
+        }
+      },
+      "response": {
+        "successStatus": "200",
+        "successResponse": "\"status\":true",
+        "extractSingleSuccessMessageId": "\"messageId\":\"([a-zA-Z0-9_-]+)\"",
+        "extractGeneralFailureMessage": "\"message\":\"([^\"]*)\""
+      }
+    },
+    "status": {
+      "messageIdKey": "messageId",
+      "statusKey": "status",
+      "statusSuccess": "true"
+    },
+    "incoming": {
     }
+  }
 ]
