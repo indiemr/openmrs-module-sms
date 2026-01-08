@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -60,10 +61,15 @@ public class TemplateTest {
   private static final String NEXMO_WHATSAPP_FAILOVER_MESSAGE_REQUEST =
       "requests/nexmo-WhatsApp-failover.json";
 
-  private static final String AISENSY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE =
-            "templates/aisensy-template.json";
-  private static final String AISENSY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST =
-            "requests/aisensy-template-request.json";
+  private static final String AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE =
+          "templates/authkey-Whatsapp-template.json";
+  private static final String AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST =
+          "requests/authkey-Whatsapp-template-request.json";
+
+    private static final String AUTHKEY_SMS_TEMPLATE_MESSAGE_TEMPLATE =
+            "templates/authkey-SMS-template.json";
+    private static final String AUTHKEY_SMS_TEMPLATE_MESSAGE_REQUEST =
+            "requests/authkey-SMS-template-request.json";
 
   private static final String FDI_MESSAGE_TEMPLATE = "templates/fdi-template.json";
   private static final String FDI_MESSAGE_REQUEST = "requests/fdi-template-request.json";
@@ -279,18 +285,52 @@ public class TemplateTest {
   }
 
     @Test
-    public void shouldGeneratePostMethodForAiSensyTemplate() throws IOException {
-        Map<String,Object> properties = new HashMap<>();
-        properties.put("apiKey", "XYZ123");
-        properties.put("campaignName", "WelcomeCampaign");
-        properties.put("destination", "256700111222");
-        properties.put("userName", "Jonathan");
-        properties.put("source", "whatsapp");
-        properties.put("message", "Hello Jonathan, welcome to our service!");
+    public void shouldGeneratePostMethodForAuthKeyWhatsAppTemplate() throws IOException {
+
+        Map<String, Object> properties = new HashMap<>();
+
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "256");
+
+        properties.put("recipients", "700111222");
+        properties.put("wid", "101");
+        properties.put("type", "text");
+
+        Map<String, Object> bodyValues = new LinkedHashMap<>();
+        bodyValues.put("name", "Jonathan");
+        bodyValues.put("otp", "1234");
+
+        properties.put("bodyValues", bodyValues);
+
+        // This is how we add attachments in AuthKey WhatsApp template we need name and data (URL)
+        Map<String, Object> headerValues = new LinkedHashMap<>();
+        headerValues.put("headerFileName", "BillDetails");
+        headerValues.put("headerData", "https://abc.pdf");
+
+        properties.put("headerValues", headerValues);
 
         testRequestBodyGeneration(
-                AISENSY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE,
-                AISENSY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST,
+                AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE,
+                AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST,
+                properties
+        );
+    }
+
+    @Test
+    public void shouldGeneratePostMethodForAuthKeySMSTemplate() throws IOException {
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("sender", "SENDERID");
+        properties.put("sid", "30123");
+        properties.put("recipients", "919566904224");
+        properties.put("var", "4321");
+        properties.put("name", "Jonathan");
+
+        testRequestBodyGeneration(
+                AUTHKEY_SMS_TEMPLATE_MESSAGE_TEMPLATE,
+                AUTHKEY_SMS_TEMPLATE_MESSAGE_REQUEST,
                 properties
         );
     }

@@ -334,51 +334,141 @@
         "incoming":{
         }
     },
-  {
-    "name": "AiSensy",
-    "configurables": [
-      "apiKey",
-      "campaignName",
-      "source"
-    ],
-    "outgoing": {
-      "maxSmsSize": "160",
-      "maxRecipient": "1",
-      "millisecondsBetweenMessages": "1",
-      "exponentialBackOffRetries": "true",
-      "hasAuthentication": "false",
-      "request": {
-        "type": "POST",
-        "jsonContentType": "true",
-        "urlPath": "https://backend.aisensy.com/campaign/t1/api/v2",
-        "bodyParameters": {
-          "apiKey": "[apiKey]",
-          "campaignName": "[campaignName]",
-          "destination": "[recipients]",
-          "userName": "[userName]",
-          "source": "[source]",
-          "templateParams": [
-            "[message]"
-          ],
-          "tags": "[tags]",
-          "location": "[location]",
-          "attributes": "[attributes]",
-          "message": "[message]"
+    {
+      "name": "AuthKeySMS",
+      "configurables": [
+        "authkey",
+        "country_code",
+        "sender",
+        "sid",
+        "var"
+      ],
+      "outgoing": {
+        "maxSmsSize": "160",
+        "hasAuthentication": "false",
+        "request": {
+          "type": "POST",
+          "urlPath": "https://console.authkey.io/restapi/requestjson.php",
+          "jsonContentType": "true",
+          "headerParameters": {
+            "Authorization": "Basic [authkey]"
+          },
+          "bodyParameters": {
+            "country_code": "[country_code]",
+            "mobile": "[recipients]",
+            "sender": "[sender]",
+            "sid": "[sid]",
+            "var": "[var]"
+          }
+        },
+        "response": {
+          "successStatus": "200",
+          "extractSingleSuccessMessageId": "\"message_id\":\\s*\"([^\"]+)\"",
+          "extractGeneralFailureMessage": "\"message\":\\s*\"([^\"]+)\""
         }
       },
-      "response": {
-        "successStatus": "200",
-        "successResponse": "\"status\":true",
-        "extractSingleSuccessMessageId": "\"messageId\":\"([a-zA-Z0-9_-]+)\"",
-        "extractGeneralFailureMessage": "\"message\":\"([^\"]*)\""
-      }
+      "status": {
+        "messageIdKey": "message_id",
+        "statusKey": "delivery_status",
+        "statusFailure": "failed|error",
+        "statusSuccess": "success"
+      },
+      "incoming": {}
     },
-    "status": {
-      "messageIdKey": "messageId",
-      "statusKey": "status",
-      "statusSuccess": "true"
+    {
+      "name": "AuthKeyGETSMSOTP",
+      "configurables": [
+        "authkey",
+        "country_code"
+      ],
+      "outgoing": {
+        "maxSmsSize": "160",
+        "hasAuthentication": "false",
+        "request": {
+          "type": "GET",
+          "urlPath": "https://api.authkey.io/request",
+          "queryParameters": {
+            "authkey": "[authkey]",
+            "mobile": "[recipients]",
+            "country_code": "[country_code]",
+            "sid": "[template_id]",
+            "var": "[var]"
+          }
+        },
+        "response": {
+          "successStatus": "200"
+        }
+      },
+      "status": {},
+      "incoming": {}
     },
-    "incoming": {
+    {
+      "name": "AuthKeyWhatsApp",
+      "configurables": [
+        "authkey",
+        "country_code"
+      ],
+      "outgoing": {
+        "maxSmsSize": "160",
+        "hasAuthentication": "true",
+        "authentication": {
+          "type": "HEADER",
+          "headerKey": "Authorization",
+          "headerValue": "Basic [authkey]"
+        },
+        "request": {
+          "type": "POST",
+          "urlPath": "https://console.authkey.io/restapi/requestjson.php",
+          "jsonContentType": "true",
+          "bodyParameters": {
+            "country_code": "[country_code]",
+            "mobile": "[recipients]",
+            "wid": "[wid]",
+            "type": "[type]",
+            "bodyValues": "[bodyValues]",
+            "headerValues": "[headerValues]"
+          }
+        },
+        "response": {
+          "successStatus": "200",
+          "extractSingleSuccessMessageId": "\"message_id\":\\s*\"([^\"]+)\"",
+          "extractGeneralFailureMessage": "\"message\":\\s*\"([^\"]+)\""
+        }
+      },
+      "status": {
+        "messageIdKey": "message_id",
+        "statusKey": "delivery_status",
+        "statusFailure": "failed|error",
+        "statusSuccess": "success"
+      },
+      "incoming": {}
+    },
+    {
+      "name": "AuthKeyWhatsAppGET",
+      "configurables": [
+        "authkey",
+        "country_code"
+      ],
+      "outgoing": {
+        "maxSmsSize": "160",
+        "hasAuthentication": "false",
+        "request": {
+          "type": "GET",
+          "urlPath": "https://console.authkey.io/restapi/request.php",
+          "queryParameters": {
+            "authkey": "[authkey]",
+            "mobile": "[recipients]",
+            "country_code": "[country_code]",
+            "wid": "[wid]",
+            "name": "[name]",
+            "otp": "[otp]"
+          }
+        },
+        "response": {
+          "successStatus": "200"
+        }
+      },
+      "status": {},
+      "incoming": {}
     }
-  }
 ]
