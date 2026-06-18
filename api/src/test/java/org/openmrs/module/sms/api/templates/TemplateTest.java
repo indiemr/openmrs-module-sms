@@ -71,6 +71,11 @@ public class TemplateTest {
     private static final String AUTHKEY_SMS_TEMPLATE_MESSAGE_REQUEST =
             "requests/authkey-SMS-template-request.json";
 
+    private static final String AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_TEMPLATE =
+            "templates/authkey-appointment-template.json";
+    private static final String AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_REQUEST =
+            "requests/authkey-appointment-template-request.json";
+
   private static final String FDI_MESSAGE_TEMPLATE = "templates/fdi-template.json";
   private static final String FDI_MESSAGE_REQUEST = "requests/fdi-template-request.json";
 
@@ -331,6 +336,25 @@ public class TemplateTest {
         testRequestBodyGeneration(
                 AUTHKEY_SMS_TEMPLATE_MESSAGE_TEMPLATE,
                 AUTHKEY_SMS_TEMPLATE_MESSAGE_REQUEST,
+                properties
+        );
+    }
+
+    @Test
+    public void shouldGeneratePostMethodForAuthKeyAppointmentTemplate() throws IOException {
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("sender", "DGINRX");
+        properties.put("sid", "30805");
+        properties.put("recipients", "9585766102");
+        properties.put("var1", "Dr.Jilani");
+        properties.put("var2", "National Hospital");
+
+        testRequestBodyGeneration(
+                AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_TEMPLATE,
+                AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_REQUEST,
                 properties
         );
     }

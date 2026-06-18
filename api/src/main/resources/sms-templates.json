@@ -376,6 +376,47 @@
       "incoming": {}
     },
     {
+      "name": "AuthKeyAppointment",
+      "configurables": [
+        "authkey",
+        "country_code",
+        "sender",
+        "sid"
+      ],
+      "outgoing": {
+        "maxSmsSize": "160",
+        "hasAuthentication": "false",
+        "request": {
+          "type": "POST",
+          "urlPath": "https://console.authkey.io/restapi/requestjson.php",
+          "jsonContentType": "true",
+          "headerParameters": {
+            "Authorization": "Basic [authkey]"
+          },
+          "bodyParameters": {
+            "country_code": "[country_code]",
+            "mobile": "[recipients]",
+            "sender": "[sender]",
+            "sid": "[sid]",
+            "var1": "[var1]",
+            "var2": "[var2]"
+          }
+        },
+        "response": {
+          "successStatus": "200",
+          "extractSingleSuccessMessageId": "\"message_id\":\\s*\"([^\"]+)\"",
+          "extractGeneralFailureMessage": "\"message\":\\s*\"([^\"]+)\""
+        }
+      },
+      "status": {
+        "messageIdKey": "message_id",
+        "statusKey": "delivery_status",
+        "statusFailure": "failed|error",
+        "statusSuccess": "success"
+      },
+      "incoming": {}
+    },
+    {
       "name": "AuthKeyGETSMSOTP",
       "configurables": [
         "authkey",

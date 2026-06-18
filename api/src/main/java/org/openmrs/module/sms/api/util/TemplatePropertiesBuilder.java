@@ -56,12 +56,13 @@ public class TemplatePropertiesBuilder {
     props.put("message", escapeForJson(outgoingSms.getMessage()));
     props.put("openMrsId", outgoingSms.getOpenMrsId());
     props.put("callback", configService.getServerUrl() + "/ws/sms/status/" + config.getName());
-    if (outgoingSms.getCustomParams() != null) {
-      props.putAll(outgoingSms.getCustomParams());
-    }
 
     for (ConfigProp configProp : config.getProps()) {
       props.put(configProp.getName(), configProp.getValue());
+    }
+
+    if (outgoingSms.getCustomParams() != null) {
+      props.putAll(outgoingSms.getCustomParams());
     }
 
     // ***** WARNING *****
