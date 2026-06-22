@@ -11,6 +11,7 @@
 package org.openmrs.module.sms.api.templates;
 
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,6 +77,13 @@ public class TemplateTest {
             "templates/authkey-appointment-template.json";
     private static final String AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_REQUEST =
             "requests/authkey-appointment-template-request.json";
+
+    private static final String AUTHKEY_INDICLINIC_NEW_APPOINTMENT_TEMPLATE =
+            "templates/authkey-indiclinic-new-appointment-template.json";
+    private static final String AUTHKEY_INDICLINIC_RESCHEDULE_TEMPLATE =
+            "templates/authkey-indiclinic-reschedule-template.json";
+    private static final String AUTHKEY_INDICLINIC_REMINDER_TEMPLATE =
+            "templates/authkey-indiclinic-reminder-template.json";
 
   private static final String FDI_MESSAGE_TEMPLATE = "templates/fdi-template.json";
   private static final String FDI_MESSAGE_REQUEST = "requests/fdi-template-request.json";
@@ -357,6 +366,93 @@ public class TemplateTest {
                 AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_REQUEST,
                 properties
         );
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicNewAppointmentTemplate() throws IOException {
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_NEW_APPOINTMENT_TEMPLATE, indiclinicAppointmentProperties());
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicRescheduleTemplate() throws IOException {
+        Map<String, Object> properties = indiclinicAppointmentProperties();
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_RESCHEDULE_TEMPLATE,
+                properties,
+                indiclinicAppointmentExpectedQuery("43194"));
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicReminderTemplate() throws IOException {
+        Map<String, Object> properties = indiclinicAppointmentProperties();
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_REMINDER_TEMPLATE,
+                properties,
+                indiclinicAppointmentExpectedQuery("43196"));
+    }
+
+    private Map<String, Object> indiclinicAppointmentProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("recipients", "9585766102");
+        properties.put("var1", "Test Patient");
+        properties.put("var2", "Dr. NH");
+        properties.put("var3", "20 Jun 2026");
+        properties.put("var4", "11:00 AM");
+        properties.put("var5", "IndiClinic Lucknow");
+        return properties;
+    }
+
+    private Map<String, String> indiclinicAppointmentExpectedQuery(String sid) {
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("authkey", "XYZ123");
+        expected.put("mobile", "9585766102");
+        expected.put("country_code", "91");
+        expected.put("sid", sid);
+        expected.put("var1", "Test Patient");
+        expected.put("var2", "Dr. NH");
+        expected.put("var3", "20 Jun 2026");
+        expected.put("var4", "11:00 AM");
+        expected.put("var5", "IndiClinic Lucknow");
+        return expected;
+    }
+
+    private void testIndiClinicAppointmentQueryGeneration(
+            String templateFileName, Map<String, Object> properties) throws IOException {
+        testIndiClinicAppointmentQueryGeneration(
+                templateFileName, properties, indiclinicAppointmentExpectedQuery("43146"));
+    }
+
+    private void testIndiClinicAppointmentQueryGeneration(
+            String templateFileName,
+            Map<String, Object> properties,
+            Map<String, String> expectedQueryParameters)
+            throws IOException {
+        final Template template = loadTemplate(templateFileName);
+        final HttpMethod generatedRequest = template.generateRequestFor(properties);
+        final Map<String, String> actualQueryParameters =
+                parseQueryString(((GetMethod) generatedRequest).getQueryString());
+        assertEquals(expectedQueryParameters, actualQueryParameters);
+    }
+
+    private Map<String, String> parseQueryString(String queryString) throws IOException {
+        final Map<String, String> parameters = new LinkedHashMap<>();
+        if (queryString == null || queryString.isEmpty()) {
+            return parameters;
+        }
+        for (String pair : queryString.split("&")) {
+            final int separatorIndex = pair.indexOf('=');
+            if (separatorIndex > 0) {
+                final String key =
+                        URLDecoder.decode(pair.substring(0, separatorIndex), StandardCharsets.UTF_8.name());
+                final String value =
+                        URLDecoder.decode(pair.substring(separatorIndex + 1), StandardCharsets.UTF_8.name());
+                parameters.put(key, value);
+            }
+        }
+        return parameters;
     }
 
   private Template loadTemplate(String templateFile) throws IOException {
