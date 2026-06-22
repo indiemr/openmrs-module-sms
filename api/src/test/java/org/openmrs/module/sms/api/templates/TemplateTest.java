@@ -85,6 +85,9 @@ public class TemplateTest {
     private static final String AUTHKEY_INDICLINIC_REMINDER_TEMPLATE =
             "templates/authkey-indiclinic-reminder-template.json";
 
+    private static final String AUTHKEY_INDICLINIC_TELECONSULTATION_TEMPLATE =
+        "templates/authkey-indiclinic-teleconsultation-template.json";
+
   private static final String FDI_MESSAGE_TEMPLATE = "templates/fdi-template.json";
   private static final String FDI_MESSAGE_REQUEST = "requests/fdi-template-request.json";
 
@@ -390,6 +393,33 @@ public class TemplateTest {
                 AUTHKEY_INDICLINIC_REMINDER_TEMPLATE,
                 properties,
                 indiclinicAppointmentExpectedQuery("43196"));
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicTeleconsultationTemplate() throws IOException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("recipients", "9585766102");
+        properties.put("var1", "Test Patient");
+        properties.put("var2", "Dr. NH");
+        properties.put("var3", "20 Jun 2026");
+        properties.put("var4", "11:00 AM");
+        properties.put("var5", "https://indiclinic.in/meet");
+
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("authkey", "XYZ123");
+        expected.put("mobile", "9585766102");
+        expected.put("country_code", "91");
+        expected.put("sid", "43195");
+        expected.put("var1", "Test Patient");
+        expected.put("var2", "Dr. NH");
+        expected.put("var3", "20 Jun 2026");
+        expected.put("var4", "11:00 AM");
+        expected.put("var5", "https://indiclinic.in/meet");
+
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_TELECONSULTATION_TEMPLATE, properties, expected);
     }
 
     private Map<String, Object> indiclinicAppointmentProperties() {
