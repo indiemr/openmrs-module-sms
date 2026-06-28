@@ -1,6 +1,81 @@
 {
-    "configs" :
-        [
-        ],
-    "defaultConfigName" : ""
+    "configs": [
+        {
+            "name": "IndiEMR New Appointment",
+            "maxRetries": 3,
+            "excludeLastFooter": true,
+            "splitHeader": "Message",
+            "splitFooter": "From Last",
+            "templateName": "AuthKeyIndiClinicNewAppointment",
+            "props": [
+                {
+                    "name": "authkey",
+                    "value": "1c37cd411965b311"
+                },
+                {
+                    "name": "country_code",
+                    "value": "91"
+                }
+            ],
+            "automaticResponseScript": "Done"
+        },
+        {
+            "name": "IndiEMR Reschedule Appointment",
+            "maxRetries": 3,
+            "excludeLastFooter": true,
+            "splitHeader": "Message",
+            "splitFooter": "From Last",
+            "templateName": "AuthKeyIndiClinicReschedule",
+            "props": [
+                {
+                    "name": "authkey",
+                    "value": "1c37cd411965b311"
+                },
+                {
+                    "name": "country_code",
+                    "value": "91"
+                }
+            ],
+            "automaticResponseScript": "Done"
+        },
+        {
+            "name": "IndiEMR Appointment Reminder",
+            "maxRetries": 3,
+            "excludeLastFooter": true,
+            "splitHeader": "Message",
+            "splitFooter": "From Last",
+            "templateName": "AuthKeyIndiClinicReminder",
+            "props": [
+                {
+                    "name": "authkey",
+                    "value": "1c37cd411965b311"
+                },
+                {
+                    "name": "country_code",
+                    "value": "91"
+                }
+            ],
+            "automaticResponseScript": "Done"
+        },
+        {
+            "name": "IndiEMR Tele Appointment",
+            "maxRetries": 3,
+            "excludeLastFooter": true,
+            "splitHeader": "Message",
+            "splitFooter": "From Last",
+            "templateName": "AuthKeyIndiClinicTeleconsultation",
+            "props": [
+                {
+                    "name": "authkey",
+                    "value": "1c37cd411965b311"
+                },
+                {
+                    "name": "country_code",
+                    "value": "91"
+                }
+            ],
+            "automaticResponseScript": "Done"
+        }
+    ],
+    "defaultConfigName": null
 }
