@@ -635,5 +635,33 @@
       },
       "status": {},
       "incoming": {}
+    },
+    {
+      "name": "AuthKeyIndiClinicPrescription",
+      "configurables": [
+        "authkey",
+        "country_code"
+      ],
+      "outgoing": {
+        "maxSmsSize": "160",
+        "hasAuthentication": "false",
+        "request": {
+          "type": "GET",
+          "urlPath": "https://api.authkey.io/request",
+          "queryParameters": {
+            "authkey": "[authkey]",
+            "mobile": "[recipients]",
+            "country_code": "[country_code]",
+            "sid": "44915",
+            "var1": "[var1]",
+            "var2": "[var2]"
+          }
+        },
+        "response": {
+          "successStatus": "200"
+        }
+      },
+      "status": {},
+      "incoming": {}
     }
 ]

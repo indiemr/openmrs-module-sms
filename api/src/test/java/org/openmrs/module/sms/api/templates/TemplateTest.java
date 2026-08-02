@@ -88,6 +88,9 @@ public class TemplateTest {
     private static final String AUTHKEY_INDICLINIC_TELECONSULTATION_TEMPLATE =
         "templates/authkey-indiclinic-teleconsultation-template.json";
 
+    private static final String AUTHKEY_INDICLINIC_PRESCRIPTION_TEMPLATE =
+        "templates/authkey-indiclinic-prescription-template.json";
+
   private static final String FDI_MESSAGE_TEMPLATE = "templates/fdi-template.json";
   private static final String FDI_MESSAGE_REQUEST = "requests/fdi-template-request.json";
 
@@ -420,6 +423,27 @@ public class TemplateTest {
 
         testIndiClinicAppointmentQueryGeneration(
                 AUTHKEY_INDICLINIC_TELECONSULTATION_TEMPLATE, properties, expected);
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicPrescriptionTemplate() throws IOException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("recipients", "9566904224");
+        properties.put("var1", "Rahul Kumar");
+        properties.put("var2", "app.indiemr.in/rx/67Bd27x-4hFnIl2SCSwaMg");
+
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("authkey", "XYZ123");
+        expected.put("mobile", "9566904224");
+        expected.put("country_code", "91");
+        expected.put("sid", "44915");
+        expected.put("var1", "Rahul Kumar");
+        expected.put("var2", "app.indiemr.in/rx/67Bd27x-4hFnIl2SCSwaMg");
+
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_PRESCRIPTION_TEMPLATE, properties, expected);
     }
 
     private Map<String, Object> indiclinicAppointmentProperties() {
