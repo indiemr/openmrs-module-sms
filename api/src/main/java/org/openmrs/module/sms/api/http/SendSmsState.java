@@ -18,7 +18,6 @@ import org.openmrs.module.sms.api.templates.Template;
 import org.openmrs.module.sms.api.util.SMSConstants;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class SendSmsState {
@@ -92,8 +91,10 @@ public class SendSmsState {
         String msg =
             String.format("Problem with '%s' template? %s", template.getName(), e.toString());
 
-        if (SocketException.class.isAssignableFrom(e.getClass())
-            && retryCount < SMSConstants.SMS_DEFAULT_RETRY_COUNT) {
+        // Any I/O failure is worth another attempt on a fresh connection. Matching only
+        // SocketException missed SSLException, which is what a dead connection actually
+        // surfaces as, so that case never retried.
+        if (e instanceof IOException && retryCount < SMSConstants.SMS_DEFAULT_RETRY_COUNT) {
           LOGGER.warn(msg);
           sleep(MINUTE);
           shouldRetry = true;
