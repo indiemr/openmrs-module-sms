@@ -1,0 +1,58 @@
+name: Publish snapshot
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+# Never let two deploys of the same snapshot run concurrently.
+concurrency:
+  group: publish-main
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and deploy sms-api to GitHub Packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # server-id matches <distributionManagement><snapshotRepository><id>github</id>.
+      # Nothing here is resolved from GitHub Packages, so one server entry is enough.
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Refuse to deploy a non-SNAPSHOT version
+        run: |
+          PROJECT_VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+          echo "project.version=$PROJECT_VERSION"
+          case "$PROJECT_VERSION" in
+            *-SNAPSHOT) ;;
+            *) echo "::error::$PROJECT_VERSION is not a SNAPSHOT - releases do not come from main."; exit 1 ;;
+          esac
+
+      # Scope: parent pom + sms-api only. sms-api is what openmrs-appointments and indi-core
+      # compile against; it is published nowhere today, so their builds only work on a machine
+      # that has run `mvn install` locally.
+      #
+      # NOT published here: the omod (shipped to servers as a file via emr-infra, never resolved
+      # from Maven) and owa (frontend-maven-plugin pins node v12, kept off the publish path).
+      # Widen this once maven.yml proves the full reactor builds on a runner.
+      #
+      # deployAtEnd: without it, a failure part-way through the reactor leaves a partial publish.
+      - name: Deploy sms-api snapshot
+        run: mvn -B --no-transfer-progress -pl api -am -DdeployAtEnd=true clean deploy
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
