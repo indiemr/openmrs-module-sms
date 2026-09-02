@@ -663,5 +663,32 @@
       },
       "status": {},
       "incoming": {}
+    },
+    {
+      "name": "AuthKeyIndiClinicLoginOTP",
+      "configurables": [
+        "authkey",
+        "country_code"
+      ],
+      "outgoing": {
+        "maxSmsSize": "160",
+        "hasAuthentication": "false",
+        "request": {
+          "type": "GET",
+          "urlPath": "https://api.authkey.io/request",
+          "queryParameters": {
+            "authkey": "[authkey]",
+            "mobile": "[recipients]",
+            "country_code": "[country_code]",
+            "sid": "30825",
+            "var": "[var]"
+          }
+        },
+        "response": {
+          "successStatus": "200"
+        }
+      },
+      "status": {},
+      "incoming": {}
     }
 ]
