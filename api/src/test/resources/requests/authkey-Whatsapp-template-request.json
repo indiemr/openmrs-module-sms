@@ -1,0 +1,14 @@
+{
+  "country_code": "256",
+  "wid": "101",
+  "headerValues": {
+    "headerFileName":"BillDetails",
+    "headerData":"https://abc.pdf"
+  },
+  "mobile": "700111222",
+  "type": "text",
+  "bodyValues": {
+    "name":"Jonathan",
+    "otp":"1234"
+  }
+}

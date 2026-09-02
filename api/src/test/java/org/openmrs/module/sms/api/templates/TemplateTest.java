@@ -11,6 +11,7 @@
 package org.openmrs.module.sms.api.templates;
 
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.io.IOUtils;
@@ -20,11 +21,13 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -59,6 +62,34 @@ public class TemplateTest {
       "templates/nexmo-WhatsApp-failover.json";
   private static final String NEXMO_WHATSAPP_FAILOVER_MESSAGE_REQUEST =
       "requests/nexmo-WhatsApp-failover.json";
+
+  private static final String AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE =
+          "templates/authkey-Whatsapp-template.json";
+  private static final String AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST =
+          "requests/authkey-Whatsapp-template-request.json";
+
+    private static final String AUTHKEY_SMS_TEMPLATE_MESSAGE_TEMPLATE =
+            "templates/authkey-SMS-template.json";
+    private static final String AUTHKEY_SMS_TEMPLATE_MESSAGE_REQUEST =
+            "requests/authkey-SMS-template-request.json";
+
+    private static final String AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_TEMPLATE =
+            "templates/authkey-appointment-template.json";
+    private static final String AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_REQUEST =
+            "requests/authkey-appointment-template-request.json";
+
+    private static final String AUTHKEY_INDICLINIC_NEW_APPOINTMENT_TEMPLATE =
+            "templates/authkey-indiclinic-new-appointment-template.json";
+    private static final String AUTHKEY_INDICLINIC_RESCHEDULE_TEMPLATE =
+            "templates/authkey-indiclinic-reschedule-template.json";
+    private static final String AUTHKEY_INDICLINIC_REMINDER_TEMPLATE =
+            "templates/authkey-indiclinic-reminder-template.json";
+
+    private static final String AUTHKEY_INDICLINIC_TELECONSULTATION_TEMPLATE =
+        "templates/authkey-indiclinic-teleconsultation-template.json";
+
+    private static final String AUTHKEY_INDICLINIC_PRESCRIPTION_TEMPLATE =
+        "templates/authkey-indiclinic-prescription-template.json";
 
   private static final String FDI_MESSAGE_TEMPLATE = "templates/fdi-template.json";
   private static final String FDI_MESSAGE_REQUEST = "requests/fdi-template-request.json";
@@ -229,7 +260,7 @@ public class TemplateTest {
     // then
     final Map expectedRequestJsonMap = objectMapper.readValue(expectedRequestBody, Map.class);
     final Map generatedRequestJsonMap = objectMapper.readValue(generatedRequestJson, Map.class);
-    assertEquals(expectedRequestJsonMap, generatedRequestJsonMap);
+    assertEquals(expectedRequestJsonMap.toString(), generatedRequestJsonMap.toString());
   }
 
   private String extractRequestBodyJson(HttpMethod httpMethod) throws IOException {
@@ -272,6 +303,211 @@ public class TemplateTest {
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.readValue(jsonTemplate, Template.class);
   }
+
+    @Test
+    public void shouldGeneratePostMethodForAuthKeyWhatsAppTemplate() throws IOException {
+
+        Map<String, Object> properties = new HashMap<>();
+
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "256");
+
+        properties.put("recipients", "700111222");
+        properties.put("wid", "101");
+        properties.put("type", "text");
+
+        Map<String, Object> bodyValues = new LinkedHashMap<>();
+        bodyValues.put("name", "Jonathan");
+        bodyValues.put("otp", "1234");
+
+        properties.put("bodyValues", bodyValues);
+
+        // This is how we add attachments in AuthKey WhatsApp template we need name and data (URL)
+        Map<String, Object> headerValues = new LinkedHashMap<>();
+        headerValues.put("headerFileName", "BillDetails");
+        headerValues.put("headerData", "https://abc.pdf");
+
+        properties.put("headerValues", headerValues);
+
+        testRequestBodyGeneration(
+                AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_TEMPLATE,
+                AUTHKEY_WHATSAPP_TEMPLATE_MESSAGE_REQUEST,
+                properties
+        );
+    }
+
+    @Test
+    public void shouldGeneratePostMethodForAuthKeySMSTemplate() throws IOException {
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("sender", "SENDERID");
+        properties.put("sid", "30123");
+        properties.put("recipients", "919566904224");
+        properties.put("var", "4321");
+        properties.put("name", "Jonathan");
+
+        testRequestBodyGeneration(
+                AUTHKEY_SMS_TEMPLATE_MESSAGE_TEMPLATE,
+                AUTHKEY_SMS_TEMPLATE_MESSAGE_REQUEST,
+                properties
+        );
+    }
+
+    @Test
+    public void shouldGeneratePostMethodForAuthKeyAppointmentTemplate() throws IOException {
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("sender", "DGINRX");
+        properties.put("sid", "30805");
+        properties.put("recipients", "9585766102");
+        properties.put("var1", "Dr.Jilani");
+        properties.put("var2", "National Hospital");
+
+        testRequestBodyGeneration(
+                AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_TEMPLATE,
+                AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_REQUEST,
+                properties
+        );
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicNewAppointmentTemplate() throws IOException {
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_NEW_APPOINTMENT_TEMPLATE, indiclinicAppointmentProperties());
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicRescheduleTemplate() throws IOException {
+        Map<String, Object> properties = indiclinicAppointmentProperties();
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_RESCHEDULE_TEMPLATE,
+                properties,
+                indiclinicAppointmentExpectedQuery("43194"));
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicReminderTemplate() throws IOException {
+        Map<String, Object> properties = indiclinicAppointmentProperties();
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_REMINDER_TEMPLATE,
+                properties,
+                indiclinicAppointmentExpectedQuery("43196"));
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicTeleconsultationTemplate() throws IOException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("recipients", "9585766102");
+        properties.put("var1", "Test Patient");
+        properties.put("var2", "Dr. NH");
+        properties.put("var3", "20 Jun 2026");
+        properties.put("var4", "11:00 AM");
+        properties.put("var5", "https://indiclinic.in/meet");
+
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("authkey", "XYZ123");
+        expected.put("mobile", "9585766102");
+        expected.put("country_code", "91");
+        expected.put("sid", "43195");
+        expected.put("var1", "Test Patient");
+        expected.put("var2", "Dr. NH");
+        expected.put("var3", "20 Jun 2026");
+        expected.put("var4", "11:00 AM");
+        expected.put("var5", "https://indiclinic.in/meet");
+
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_TELECONSULTATION_TEMPLATE, properties, expected);
+    }
+
+    @Test
+    public void shouldGenerateGetMethodForAuthKeyIndiClinicPrescriptionTemplate() throws IOException {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("recipients", "9566904224");
+        properties.put("var1", "Rahul Kumar");
+        properties.put("var2", "app.indiemr.in/rx/67Bd27x-4hFnIl2SCSwaMg");
+
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("authkey", "XYZ123");
+        expected.put("mobile", "9566904224");
+        expected.put("country_code", "91");
+        expected.put("sid", "44915");
+        expected.put("var1", "Rahul Kumar");
+        expected.put("var2", "app.indiemr.in/rx/67Bd27x-4hFnIl2SCSwaMg");
+
+        testIndiClinicAppointmentQueryGeneration(
+                AUTHKEY_INDICLINIC_PRESCRIPTION_TEMPLATE, properties, expected);
+    }
+
+    private Map<String, Object> indiclinicAppointmentProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("authkey", "XYZ123");
+        properties.put("country_code", "91");
+        properties.put("recipients", "9585766102");
+        properties.put("var1", "Test Patient");
+        properties.put("var2", "Dr. NH");
+        properties.put("var3", "20 Jun 2026");
+        properties.put("var4", "11:00 AM");
+        properties.put("var5", "IndiClinic Lucknow");
+        return properties;
+    }
+
+    private Map<String, String> indiclinicAppointmentExpectedQuery(String sid) {
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("authkey", "XYZ123");
+        expected.put("mobile", "9585766102");
+        expected.put("country_code", "91");
+        expected.put("sid", sid);
+        expected.put("var1", "Test Patient");
+        expected.put("var2", "Dr. NH");
+        expected.put("var3", "20 Jun 2026");
+        expected.put("var4", "11:00 AM");
+        expected.put("var5", "IndiClinic Lucknow");
+        return expected;
+    }
+
+    private void testIndiClinicAppointmentQueryGeneration(
+            String templateFileName, Map<String, Object> properties) throws IOException {
+        testIndiClinicAppointmentQueryGeneration(
+                templateFileName, properties, indiclinicAppointmentExpectedQuery("43146"));
+    }
+
+    private void testIndiClinicAppointmentQueryGeneration(
+            String templateFileName,
+            Map<String, Object> properties,
+            Map<String, String> expectedQueryParameters)
+            throws IOException {
+        final Template template = loadTemplate(templateFileName);
+        final HttpMethod generatedRequest = template.generateRequestFor(properties);
+        final Map<String, String> actualQueryParameters =
+                parseQueryString(((GetMethod) generatedRequest).getQueryString());
+        assertEquals(expectedQueryParameters, actualQueryParameters);
+    }
+
+    private Map<String, String> parseQueryString(String queryString) throws IOException {
+        final Map<String, String> parameters = new LinkedHashMap<>();
+        if (queryString == null || queryString.isEmpty()) {
+            return parameters;
+        }
+        for (String pair : queryString.split("&")) {
+            final int separatorIndex = pair.indexOf('=');
+            if (separatorIndex > 0) {
+                final String key =
+                        URLDecoder.decode(pair.substring(0, separatorIndex), StandardCharsets.UTF_8.name());
+                final String value =
+                        URLDecoder.decode(pair.substring(separatorIndex + 1), StandardCharsets.UTF_8.name());
+                parameters.put(key, value);
+            }
+        }
+        return parameters;
+    }
 
   private Template loadTemplate(String templateFile) throws IOException {
     try (InputStream templateStream =

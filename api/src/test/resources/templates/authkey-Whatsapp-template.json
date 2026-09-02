@@ -1,0 +1,41 @@
+{
+  "name": "AuthKeyWhatsApp",
+  "configurables": [
+    "authkey",
+    "country_code"
+  ],
+  "outgoing": {
+    "maxSmsSize": "160",
+    "hasAuthentication": "true",
+    "authentication": {
+      "type": "HEADER",
+      "headerKey": "Authorization",
+      "headerValue": "Basic [authkey]"
+    },
+    "request": {
+      "type": "POST",
+      "urlPath": "https://console.authkey.io/restapi/requestjson.php",
+      "jsonContentType": "true",
+      "bodyParameters": {
+        "country_code": "[country_code]",
+        "mobile": "[recipients]",
+        "wid": "[wid]",
+        "type": "[type]",
+        "bodyValues": "[bodyValues]",
+        "headerValues": "[headerValues]"
+      }
+    },
+    "response": {
+      "successStatus": "200",
+      "extractSingleSuccessMessageId": "\"message_id\":\\s*\"([^\"]+)\"",
+      "extractGeneralFailureMessage": "\"message\":\\s*\"([^\"]+)\""
+    }
+  },
+  "status": {
+    "messageIdKey": "message_id",
+    "statusKey": "delivery_status",
+    "statusFailure": "failed|error",
+    "statusSuccess": "success"
+  },
+  "incoming": {}
+}

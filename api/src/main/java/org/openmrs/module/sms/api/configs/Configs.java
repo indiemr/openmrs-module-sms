@@ -15,6 +15,8 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.openmrs.module.sms.api.validate.annotation.ValidConfigs;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,7 @@ public class Configs {
 
   /** The configurations in the system. */
   @JsonProperty("configs")
+  @SerializedName("configs") 
   private List<Config> configList = new ArrayList<>();
 
   /**
