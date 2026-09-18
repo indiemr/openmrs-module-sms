@@ -260,7 +260,7 @@ public class TemplateTest {
     // then
     final Map expectedRequestJsonMap = objectMapper.readValue(expectedRequestBody, Map.class);
     final Map generatedRequestJsonMap = objectMapper.readValue(generatedRequestJson, Map.class);
-    assertEquals(expectedRequestJsonMap.toString(), generatedRequestJsonMap.toString());
+    assertEquals(expectedRequestJsonMap, generatedRequestJsonMap);
   }
 
   private String extractRequestBodyJson(HttpMethod httpMethod) throws IOException {
@@ -304,6 +304,14 @@ public class TemplateTest {
     return objectMapper.readValue(jsonTemplate, Template.class);
   }
 
+    // KNOWN DEFECT, fixture records ACTUAL behaviour, not correct behaviour.
+    // Nested map properties are serialised with Java's Map.toString(), so the request
+    // carries the string "{headerFileName=BillDetails, headerData=https://abc.pdf}"
+    // instead of a JSON object. That is not valid JSON for the provider.
+    // Not breaking production today: no live config uses a WhatsApp template -- the six
+    // live configs are all AuthKeyIndiClinic*. Fixing the serialisation is product work
+    // and needs AuthKey's actual contract; tracked in
+    // claudePrompt/sms-authkey-and-publishing-2026-09-15.md (item B).
     @Test
     public void shouldGeneratePostMethodForAuthKeyWhatsAppTemplate() throws IOException {
 
@@ -363,9 +371,9 @@ public class TemplateTest {
         properties.put("country_code", "91");
         properties.put("sender", "DGINRX");
         properties.put("sid", "30805");
-        properties.put("recipients", "9585766102");
-        properties.put("var1", "Dr.Jilani");
-        properties.put("var2", "National Hospital");
+        properties.put("recipients", "9999999999");
+        properties.put("var1", "Dr.Example");
+        properties.put("var2", "Example Clinic");
 
         testRequestBodyGeneration(
                 AUTHKEY_APPOINTMENT_TEMPLATE_MESSAGE_TEMPLATE,
@@ -403,7 +411,7 @@ public class TemplateTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put("authkey", "XYZ123");
         properties.put("country_code", "91");
-        properties.put("recipients", "9585766102");
+        properties.put("recipients", "9999999999");
         properties.put("var1", "Test Patient");
         properties.put("var2", "Dr. NH");
         properties.put("var3", "20 Jun 2026");
@@ -412,7 +420,7 @@ public class TemplateTest {
 
         Map<String, String> expected = new LinkedHashMap<>();
         expected.put("authkey", "XYZ123");
-        expected.put("mobile", "9585766102");
+        expected.put("mobile", "9999999999");
         expected.put("country_code", "91");
         expected.put("sid", "43195");
         expected.put("var1", "Test Patient");
@@ -450,7 +458,7 @@ public class TemplateTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put("authkey", "XYZ123");
         properties.put("country_code", "91");
-        properties.put("recipients", "9585766102");
+        properties.put("recipients", "9999999999");
         properties.put("var1", "Test Patient");
         properties.put("var2", "Dr. NH");
         properties.put("var3", "20 Jun 2026");
@@ -462,7 +470,7 @@ public class TemplateTest {
     private Map<String, String> indiclinicAppointmentExpectedQuery(String sid) {
         Map<String, String> expected = new LinkedHashMap<>();
         expected.put("authkey", "XYZ123");
-        expected.put("mobile", "9585766102");
+        expected.put("mobile", "9999999999");
         expected.put("country_code", "91");
         expected.put("sid", sid);
         expected.put("var1", "Test Patient");
