@@ -1,8 +1,8 @@
 {
   "authkey": "XYZ123",
-  "mobile": "9585766102",
-  "country_code": "91",
-  "sid": "43146",
+  "mobile": 9999999999,
+  "country_code": 91,
+  "sid": 43146,
   "var1": "Test Patient",
   "var2": "Dr. NH",
   "var3": "20 Jun 2026",
