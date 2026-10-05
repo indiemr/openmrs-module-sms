@@ -113,7 +113,20 @@
                 }
             ],
             "automaticResponseScript": "Done"
-        }
+        },
+        {
+            "name": "IndiEMR Referral",
+            "maxRetries": 3,
+            "excludeLastFooter": true,
+            "splitHeader": "Message",
+            "splitFooter": "From Last",
+            "templateName": "AuthKeyIndiClinicReferral",
+            "props": [
+              { "name": "authkey", "value": "1c37cd411965b311" },
+              { "name": "country_code", "value": "91" }
+            ],
+            "automaticResponseScript": "Done"
+          }
     ],
     "defaultConfigName": null
 }
